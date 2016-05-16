@@ -2,7 +2,7 @@ var app = app || {};
 
 app.Light = function() {
 
-
+	//constructor for light
 	function Light(_brightness) {
 		this.brightness = _brightness;
 		this.pos = new Victor(Math.floor(Math.random() * (window.innerWidth - this.brightness)), Math.floor(Math.random() * (window.innerHeight*.988 - this.brightness)));
@@ -11,6 +11,7 @@ app.Light = function() {
 	
 	var l = Light.prototype;
 	
+	//draws the light to the canvas
 	l.display = function(ctx) {
 		ctx.save();
 		ctx.fillStyle = "rgba(255,215,0,.5)";//"gold";
@@ -24,6 +25,7 @@ app.Light = function() {
 		ctx.restore();
 	}
 	
+	//moves the light to the mouse location
 	l.moveLight = function(mouse){
 		this.pos.x = mouse.x;
 		this.pos.y = mouse.y;

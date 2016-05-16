@@ -1,42 +1,70 @@
 var app = app || {};
 
 app.Vehicle = function() {
+	
+	//constructor function
 	function Vehicle(_type) {
+		//the type of vehicle
+		//true means its an attracting vehicle
+		//false means it's a repelling vehicle
 		this.type = _type;
+		
+		//starts the vehicle center screen
 		this.pos = new Victor(window.innerWidth / 2, window.innerHeight*.988 /2);
 		
+		//the velocity of the vehicle
 		this.velocity = new Victor(0, -1);
 		
+		//the ehicle's acceleration
 		this.acceleration = new Victor(0,0);
 		this.acceleration.x = 0;
 		this.acceleration.y = 0;
 		
+		//the move direction
 		this.moveDir = new Victor(0,0);
 		
+		//the position of the left controller
 		this.posLC = new Victor(this.pos.x - 15, this.pos.y - 15);
 		
+		//the position of the right controller
 		this.posRC = new Victor(this.pos.x + 15, this.pos.y - 15);
 		
+		//the vehicle's rotation
 		this.rotation = 0;
 		
+		//the forces acting on the vehicle
 		this.leftForce = new Victor(0,0);
 		this.rightForce = new Victor(0,0);
 		
+		//initial uncalculated forces on the vehicle
 		this.leftLightForce = 0;
 		this.rightLightForce = 0;
+		
+		//the last position of the vehicle (used for drawing trails)
 		this.lastPos = this.pos.clone();
 	};
 	
 	var v = Vehicle.prototype;
 	
-	
+	//the update function
+	//updates all logic for the vehciel as well as displays it
+	//params
+	//Lights: the array of lights in the simulation
+	//ctx: the vehjicle canvcas context
+	//dctx: the trail canvas context
+	//AttractVehicleColor: the color of the attract vehicle
+	//AttractVehicleTrail: the color of the attract vehicle's trail
+	//RepelVehicleColor: the color of the repel vehicle
+	//RepelVehicleTrail: the color of the repel vehicle's trail
 	v.update = function(Lights, ctx, dctx, AttractVehicleColor, AttractVehicleTrail, RepelVehicleColor, RepelVehicleTrail) {
-	
+		
+		//resets params
 		this.leftLightForce = 0;
 		this.rightLightForce = 0;
 		var ltemp, rtemp;
 		this.lastPos = this.pos.clone();
 		
+		//gets inital ligth forces based on light array
 		for(var i = 0; i < Lights.length; i++)
 		{
 			ltemp = (Lights[i].brightness) / (Lights[i].pos.distance(this.posLC));
@@ -49,7 +77,7 @@ app.Vehicle = function() {
 		
 		
 		
-		
+		//gets the offsets for everything in the vehicle
 		var fwdOff = this.velocity.clone();
 		fwdOff.normalize();
 		fwdOff.multiply(new Victor(12,12));
@@ -72,6 +100,7 @@ app.Vehicle = function() {
 		this.posRC.add(rightOff);
 		
 		
+		//calcs forces depending on the vehicle type
 		if(!this.type)
 		{
 			this.leftForce = this.velocity.clone();
@@ -93,6 +122,7 @@ app.Vehicle = function() {
 			this.rightForce.multiply(new Victor(this.leftLightForce, this.leftLightForce));
 		}
 		
+		//determines which way the vehicle will move
 		var leftLine = this.posLC.clone();
 		leftLine.add(this.leftForce);
 		
@@ -104,18 +134,15 @@ app.Vehicle = function() {
 		moveDir = new Victor(moveDirTemp.y*-1, moveDirTemp.x);
 		moveDir.normalize();
 		
+		//sets up vehicles acceleration
 		this.acceleration.multiply(new Victor(0,0));
 		this.acceleration = moveDir.clone();
-		// console.log("\na = " + this.acceleration);
 		this.acceleration.multiply(new Victor(this.rightLightForce + this.leftLightForce, this.leftLightForce + this.rightLightForce));
-		// console.log("rightLightForce: " + this.rightLightForce);
-		// console.log("leftLightForce: " + this.leftLightForce);
-		// console.log("Sum: " + (this.rightLightForce + this.leftLightForce));
-		// console.log("a = " + this.acceleration);
 		
 		var temp = this.velocity.clone();
 		temp.normalize();
 		
+		//adds friction
 		if(Math.abs(temp.x) > .1 || Math.abs(temp.y) > .1)
 		{
 			var friction = this.velocity.clone();
@@ -124,22 +151,22 @@ app.Vehicle = function() {
 			friction.multiply(new Victor(.15,.15));
 			this.acceleration.add(friction);
 		}
-		//console.log("a = " + this.acceleration);
 		
+		//updates the velocity
 		this.velocity.add(this.acceleration);
-		//console.log("v = " + this.velocity);
 		
-		
+		//limits the veklocity of a vehicle at an upper cap of 7
 		if(this.velocity.length() > 7)
 		{
 			this.velocity.normalize();
 			this.velocity.multiply(new Victor(7,7));
 		}
-		//console.log("v = " + this.velocity);
 		
+		//sets up the rotation for the vehicle
 		this.rotation = this.velocity.angle();
 		this.pos.add(this.velocity);
 		
+		//determines if the vehicle just wrapped around the screen and wraps it if needed
 		var wrapped = false;
 		if(this.pos.x < 0) 
 		{
@@ -163,6 +190,7 @@ app.Vehicle = function() {
 		}
 		
 		
+		//draws the vehicle trail unless it just wrapped from one side of the screen to the other
 		if(!wrapped)
 		{
 			dctx.save();
@@ -176,11 +204,11 @@ app.Vehicle = function() {
 			dctx.lineTo(this.pos.x, this.pos.y);
 			dctx.stroke();
 			dctx.closePath();
-			//console.log(this.type);
 			dctx.restore();
 		}
 			
 			
+		//draws the vehicle
 		ctx.save();
 		ctx.translate(this.pos.x, this.pos.y);
 		ctx.rotate(this.rotation+Math.PI/2);
@@ -194,6 +222,7 @@ app.Vehicle = function() {
 
 		ctx.fillStyle = "black";
 		
+		//draws the left and right controllersa s dots
 		ctx.beginPath();
 		ctx.arc(this.posLC.x,this.posLC.y,2,0,2*Math.PI);
 		ctx.fill();
