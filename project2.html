@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<style>
+		#topCanvas {
+			display: block;
+			position: absolute;
+			background: rgba(0,0,0,0);
+			margin-top: -8px;
+			margin-left: -8px;
+		}
+		
+		
+		#drawCanvas {
+			display: block;
+			position: absolute;
+			background: rgba(255,255,255,.1);
+			margin-top: -8px;
+			margin-left: -8px;
+		}
+		
+		body{
+			background: gray;
+		}
+	</style>
+</head>
+<body>
+	<canvas id='drawCanvas'>Get a real browser!</canvas>
+	<canvas id='topCanvas'>Get a real browser!</canvas>
+	
+	<script src='victor-1.1.0\victor-1.1.0\build\victor.js'></script>
+	<script src='dat.gui.js'></script>
+	<script src='vehicle.js'></script>
+	<script src='light.js'></script>
+	<script src='main.js'></script>
+</body>
+</html>
